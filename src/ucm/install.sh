@@ -143,42 +143,51 @@ tar -xzf "${TMP_DIR}/ucm.tar.gz" -C "${TMP_DIR}"
 echo_log "Archive contents:"
 find "${TMP_DIR}" -type f | head -20
 
-# The UCM archive contains a wrapper script 'ucm' that calls the actual binary
-# The wrapper expects the runtime to be at /usr/local/bin/unison/
-# We need to copy the entire extracted contents to the right location
+# The UCM archive structure:
+# - unison/unison (the main binary)
+# - ui/ (web UI assets)
+# We need to copy everything to /usr/local/bin/ preserving the structure
 
-# Find the extracted directory (usually named 'ucm' or similar)
-EXTRACTED_DIR=$(find "${TMP_DIR}" -mindepth 1 -maxdepth 1 -type d | head -n1)
+# Create the installation directory
+mkdir -p /usr/local/bin/unison
+mkdir -p "${UCM_HOME}"
 
-if [ -z "${EXTRACTED_DIR}" ]; then
-    # No subdirectory, files are directly in TMP_DIR
-    EXTRACTED_DIR="${TMP_DIR}"
+# Copy all extracted contents to /usr/local/bin/
+# The archive extracts to TMP_DIR with unison/ and ui/ subdirectories
+echo_log "Installing UCM files..."
+
+# Copy the unison directory (contains the main binary)
+if [ -d "${TMP_DIR}/unison" ]; then
+    cp -r "${TMP_DIR}/unison"/* /usr/local/bin/unison/
+    echo_log "Copied unison binary to /usr/local/bin/unison/"
 fi
 
-echo_log "Extracted directory: ${EXTRACTED_DIR}"
+# Copy the ui directory if present
+if [ -d "${TMP_DIR}/ui" ]; then
+    mkdir -p /usr/local/bin/ui
+    cp -r "${TMP_DIR}/ui"/* /usr/local/bin/ui/
+    echo_log "Copied UI assets to /usr/local/bin/ui/"
+fi
 
-# Create the installation directory structure
-mkdir -p /usr/local/bin/unison
+# Make binaries executable
+chmod +x /usr/local/bin/unison/unison 2>/dev/null || true
 
-# Copy all contents to /usr/local/bin/unison/
-cp -r "${EXTRACTED_DIR}"/* /usr/local/bin/unison/ 2>/dev/null || cp -r "${TMP_DIR}"/* /usr/local/bin/unison/
-
-# Make all binaries executable
-find /usr/local/bin/unison -type f -exec chmod +x {} \; 2>/dev/null || true
-
-# The main ucm script should be in /usr/local/bin/unison/ucm
-# Create a symlink or copy to /usr/local/bin/ucm
-if [ -f "/usr/local/bin/unison/ucm" ]; then
-    ln -sf /usr/local/bin/unison/ucm /usr/local/bin/ucm
-    echo_log "Created symlink /usr/local/bin/ucm -> /usr/local/bin/unison/ucm"
+# Create the ucm command as a symlink to the unison binary
+if [ -f "/usr/local/bin/unison/unison" ]; then
+    ln -sf /usr/local/bin/unison/unison /usr/local/bin/ucm
+    echo_log "Created symlink /usr/local/bin/ucm -> /usr/local/bin/unison/unison"
 else
-    echo_error "UCM wrapper script not found in extracted contents"
+    echo_error "Unison binary not found in extracted contents"
     echo_log "Contents of /usr/local/bin/unison:"
     ls -la /usr/local/bin/unison/
     exit 1
 fi
 
 # Also copy to UCM_HOME for consistency
+cp -r /usr/local/bin/unison/* "${UCM_HOME}/" 2>/dev/null || true
+if [ -d "/usr/local/bin/ui" ]; then
+    cp -r /usr/local/bin/ui "${UCM_HOME}/" 2>/dev/null || true
+fi# Also copy to UCM_HOME for consistency
 cp -r /usr/local/bin/unison/* "${UCM_HOME}/" 2>/dev/null || true
 
 # Verify installation
