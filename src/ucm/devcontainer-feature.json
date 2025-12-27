@@ -1,6 +1,6 @@
 {
     "id": "ucm",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "name": "Unison UCM",
     "documentationURL": "https://github.com/unisonweb/unison",
     "description": "Installs the Unison Codebase Manager (UCM) CLI for the Unison programming language.",
