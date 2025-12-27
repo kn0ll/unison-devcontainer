@@ -139,54 +139,47 @@ fi
 echo_log "Extracting UCM..."
 tar -xzf "${TMP_DIR}/ucm.tar.gz" -C "${TMP_DIR}"
 
-# Find and install the ucm binary
-# The archive contains a directory structure, find the ucm binary
-UCM_BINARY=$(find "${TMP_DIR}" -name "ucm" -type f -executable 2>/dev/null | head -n1)
+# Debug: show archive contents
+echo_log "Archive contents:"
+find "${TMP_DIR}" -type f | head -20
 
-if [ -z "${UCM_BINARY}" ]; then
-    # Try to find without executable bit (might not be set in archive)
-    UCM_BINARY=$(find "${TMP_DIR}" -name "ucm" -type f 2>/dev/null | head -n1)
+# The UCM archive contains a wrapper script 'ucm' that calls the actual binary
+# The wrapper expects the runtime to be at /usr/local/bin/unison/
+# We need to copy the entire extracted contents to the right location
+
+# Find the extracted directory (usually named 'ucm' or similar)
+EXTRACTED_DIR=$(find "${TMP_DIR}" -mindepth 1 -maxdepth 1 -type d | head -n1)
+
+if [ -z "${EXTRACTED_DIR}" ]; then
+    # No subdirectory, files are directly in TMP_DIR
+    EXTRACTED_DIR="${TMP_DIR}"
 fi
 
-if [ -z "${UCM_BINARY}" ]; then
-    echo_log "UCM binary not found directly, checking archive contents..."
-    ls -la "${TMP_DIR}"
-    
-    # Check if there's a directory inside
-    for dir in "${TMP_DIR}"/*/; do
-        if [ -d "$dir" ]; then
-            echo_log "Found directory: $dir"
-            ls -la "$dir"
-        fi
-    done
-    
-    # Try again after listing
-    UCM_BINARY=$(find "${TMP_DIR}" -type f \( -name "ucm" -o -name "ucm.exe" \) 2>/dev/null | head -n1)
-fi
+echo_log "Extracted directory: ${EXTRACTED_DIR}"
 
-if [ -n "${UCM_BINARY}" ]; then
-    echo_log "Found UCM binary at: ${UCM_BINARY}"
-    cp "${UCM_BINARY}" /usr/local/bin/ucm
-    chmod +x /usr/local/bin/ucm
+# Create the installation directory structure
+mkdir -p /usr/local/bin/unison
+
+# Copy all contents to /usr/local/bin/unison/
+cp -r "${EXTRACTED_DIR}"/* /usr/local/bin/unison/ 2>/dev/null || cp -r "${TMP_DIR}"/* /usr/local/bin/unison/
+
+# Make all binaries executable
+find /usr/local/bin/unison -type f -exec chmod +x {} \; 2>/dev/null || true
+
+# The main ucm script should be in /usr/local/bin/unison/ucm
+# Create a symlink or copy to /usr/local/bin/ucm
+if [ -f "/usr/local/bin/unison/ucm" ]; then
+    ln -sf /usr/local/bin/unison/ucm /usr/local/bin/ucm
+    echo_log "Created symlink /usr/local/bin/ucm -> /usr/local/bin/unison/ucm"
 else
-    echo_error "Could not find UCM binary in the downloaded archive."
-    echo_log "Archive contents:"
-    find "${TMP_DIR}" -type f
+    echo_error "UCM wrapper script not found in extracted contents"
+    echo_log "Contents of /usr/local/bin/unison:"
+    ls -la /usr/local/bin/unison/
     exit 1
 fi
 
-# Also copy any additional runtime files if present
-# UCM may include additional files like ui assets
-UCM_PARENT_DIR=$(dirname "${UCM_BINARY}")
-if [ -d "${UCM_PARENT_DIR}" ] && [ "${UCM_PARENT_DIR}" != "${TMP_DIR}" ]; then
-    echo_log "Copying UCM runtime files to ${UCM_HOME}..."
-    cp -r "${UCM_PARENT_DIR}"/* "${UCM_HOME}/" 2>/dev/null || true
-    
-    # Ensure the binary in UCM_HOME is also executable
-    if [ -f "${UCM_HOME}/ucm" ]; then
-        chmod +x "${UCM_HOME}/ucm"
-    fi
-fi
+# Also copy to UCM_HOME for consistency
+cp -r /usr/local/bin/unison/* "${UCM_HOME}/" 2>/dev/null || true
 
 # Verify installation
 if command -v ucm > /dev/null 2>&1; then

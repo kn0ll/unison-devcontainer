@@ -2,7 +2,7 @@
     "specific_version": {
         "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
         "features": {
-            "unison-ucm": {
+            "ucm": {
                 "version": "1.0.1"
             }
         }
