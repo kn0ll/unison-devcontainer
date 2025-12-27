@@ -1,6 +1,6 @@
 # Unison UCM Dev Container Feature
 
-[![Build and Test](https://github.com/kn0ll/unison-devcontainer-feature/actions/workflows/test.yaml/badge.svg)](https://github.com/kn0ll/unison-devcontainer-feature/actions/workflows/test.yaml)
+[![Build, Test, and Release](https://github.com/kn0ll/unison-devcontainer/actions/workflows/ci.yaml/badge.svg)](https://github.com/kn0ll/unison-devcontainer/actions/workflows/ci.yaml)
 
 A [Dev Container Feature](https://containers.dev/features) that installs the [Unison Codebase Manager (UCM)](https://www.unison-lang.org/) CLI.
 
