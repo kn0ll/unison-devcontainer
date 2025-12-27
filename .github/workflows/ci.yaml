@@ -78,3 +78,28 @@ jobs:
             --registry ghcr.io \
             --namespace ${{ github.repository_owner }}/unison-devcontainer \
             ./src
+
+      - name: "Get feature version"
+        id: version
+        run: |
+          VERSION=$(jq -r '.version' src/ucm/devcontainer-feature.json)
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: "Create GitHub Release"
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.version.outputs.version }}
+          name: v${{ steps.version.outputs.version }}
+          body: |
+            ## UCM Dev Container Feature v${{ steps.version.outputs.version }}
+            
+            Install in your devcontainer.json:
+            ```json
+            {
+              "features": {
+                "ghcr.io/${{ github.repository_owner }}/unison-devcontainer/ucm:${{ steps.version.outputs.version }}": {}
+              }
+            }
+            ```
+          generate_release_notes: true
+          make_latest: true
