@@ -187,8 +187,7 @@ fi
 cp -r /usr/local/bin/unison/* "${UCM_HOME}/" 2>/dev/null || true
 if [ -d "/usr/local/bin/ui" ]; then
     cp -r /usr/local/bin/ui "${UCM_HOME}/" 2>/dev/null || true
-fi# Also copy to UCM_HOME for consistency
-cp -r /usr/local/bin/unison/* "${UCM_HOME}/" 2>/dev/null || true
+fi
 
 # Verify installation
 if command -v ucm > /dev/null 2>&1; then
