@@ -27,10 +27,10 @@ fi
 # Detect architecture
 architecture="$(uname -m)"
 case "${architecture}" in
-    x86_64) arch="x86_64" ;;
-    aarch64 | arm64) arch="aarch64" ;;
+    x86_64) arch="x64" ;;
+    aarch64 | arm64) arch="arm64" ;;
     *)
-        echo_error "Unsupported architecture: ${architecture}. UCM supports x86_64 and aarch64 (arm64) only."
+        echo_error "Unsupported architecture: ${architecture}. UCM supports x64 and arm64 only."
         exit 1
         ;;
 esac
@@ -39,7 +39,7 @@ esac
 os="$(uname -s)"
 case "${os}" in
     Linux) os_name="linux" ;;
-    Darwin) os_name="darwin" ;;
+    Darwin) os_name="macos" ;;
     *)
         echo_error "Unsupported OS: ${os}. UCM supports Linux and macOS only."
         exit 1
