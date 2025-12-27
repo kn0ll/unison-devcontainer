@@ -1,0 +1,14 @@
+{
+    "name": "Unison Dev Container Feature",
+    "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
+    "features": {
+        "./src/ucm": {}
+    },
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "unison-lang.unison"
+            ]
+        }
+    }
+}

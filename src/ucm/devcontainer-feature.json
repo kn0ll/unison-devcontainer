@@ -1,0 +1,32 @@
+{
+    "id": "ucm",
+    "version": "1.0.0",
+    "name": "Unison UCM",
+    "documentationURL": "https://github.com/unisonweb/unison",
+    "description": "Installs the Unison Codebase Manager (UCM) CLI for the Unison programming language.",
+    "options": {
+        "version": {
+            "type": "string",
+            "proposals": [
+                "latest",
+                "1.0.1",
+                "1.0.0"
+            ],
+            "default": "latest",
+            "description": "Select the version of UCM to install."
+        }
+    },
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "unison-lang.unison"
+            ]
+        }
+    },
+    "installsAfter": [
+        "ghcr.io/devcontainers/features/common-utils"
+    ],
+    "containerEnv": {
+        "UCM_HOME": "/usr/local/share/unison"
+    }
+}
