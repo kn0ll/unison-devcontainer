@@ -1,4 +1,4 @@
-name: "Build and Test"
+name: "Build, Test, and Release"
 on:
   push:
     branches:
@@ -10,10 +10,13 @@ on:
       - master
   workflow_dispatch:
 
+permissions:
+  contents: write
+  packages: write
+
 jobs:
   test:
     runs-on: ubuntu-latest
-    continue-on-error: true
     strategy:
       matrix:
         features:
@@ -36,7 +39,6 @@ jobs:
 
   test-scenarios:
     runs-on: ubuntu-latest
-    continue-on-error: true
     strategy:
       matrix:
         features:
@@ -53,3 +55,29 @@ jobs:
             --features ${{ matrix.features }} \
             --base-image mcr.microsoft.com/devcontainers/base:ubuntu \
             --project-folder .
+
+  release:
+    needs: [test, test-scenarios]
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: "Install devcontainer CLI"
+        run: npm install -g @devcontainers/cli
+
+      - name: "Login to GitHub Container Registry"
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: "Publish Features"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          devcontainer features publish \
+            --registry ghcr.io \
+            --namespace ${{ github.repository_owner }}/unison-devcontainer \
+            ./src
