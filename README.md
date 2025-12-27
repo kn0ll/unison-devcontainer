@@ -16,11 +16,11 @@ Add this feature to your `devcontainer.json`:
 
 ```jsonc
 {
-    "name": "My Dev Container",
-    "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
-    "features": {
-        "ghcr.io/kn0ll/unison-devcontainer/ucm:1": {}
-    }
+  "name": "My Dev Container",
+  "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
+  "features": {
+    "ghcr.io/kn0ll/unison-devcontainer/ucm:1": {}
+  }
 }
 ```
 
@@ -28,11 +28,11 @@ Add this feature to your `devcontainer.json`:
 
 ```jsonc
 {
-    "features": {
-        "ghcr.io/kn0ll/unison-devcontainer/ucm:1": {
-            "version": "latest"  // or a specific version like "1.0.1"
-        }
+  "features": {
+    "ghcr.io/kn0ll/unison-devcontainer/ucm:1": {
+      "version": "latest"  // or a specific version like "1.0.1"
     }
+  }
 }
 ```
 
@@ -57,9 +57,9 @@ npm install -g @devcontainers/cli
 
 # Test the feature
 devcontainer features test \
-    --features ucm \
-    --base-image mcr.microsoft.com/devcontainers/base:ubuntu \
-    --project-folder .
+  --features ucm \
+  --base-image mcr.microsoft.com/devcontainers/base:ubuntu \
+  --project-folder .
 ```
 
 ### Publishing
