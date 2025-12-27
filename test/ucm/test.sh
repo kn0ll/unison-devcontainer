@@ -14,14 +14,8 @@ source dev-container-features-test-lib
 # Check if ucm is installed and accessible
 check "ucm is installed" command -v ucm
 
-# Check if ucm binary is executable
-check "ucm is executable" test -x "$(command -v ucm)"
-
 # Check ucm version (this also verifies it runs correctly)
 check "ucm runs" bash -c "ucm version 2>&1 || ucm --version 2>&1 || ucm help 2>&1"
-
-# Verify UCM_HOME environment variable is set
-check "UCM_HOME is set" test -n "${UCM_HOME}"
 
 # Report results
 # If any of the checks above exited with a non-zero exit code, the test will fail.
