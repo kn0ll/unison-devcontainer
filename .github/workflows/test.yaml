@@ -51,4 +51,5 @@ jobs:
         run: |
           devcontainer features test \
             --features ${{ matrix.features }} \
+            --base-image mcr.microsoft.com/devcontainers/base:ubuntu \
             --project-folder .
